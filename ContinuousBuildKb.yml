@@ -5,7 +5,7 @@
 
 variables:
   #Pipeline config variables:
-  EXEC_AGENT: $(pool)
+  EXEC_AGENT: $(POOL)
 
   #Environment variables: 
   MSBUILD: $(msbuildpath)
