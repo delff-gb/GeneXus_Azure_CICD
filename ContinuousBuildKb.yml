@@ -3,9 +3,9 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-#variables:
+variables:
   #Pipeline config variables:
-  #EXEC_AGENT: $(POOL)
+  EXEC_AGENT: $(POOL)
 
   #Environment variables: 
   #MSBUILD: $(msbuildpath)
