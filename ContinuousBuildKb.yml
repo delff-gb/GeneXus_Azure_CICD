@@ -5,13 +5,13 @@
 
 variables:
   #Pipeline config variables:
-  EXEC_AGENT: $(POOL)
+  #EXEC_AGENT: $(POOL)
 
   #Environment variables: 
   #MSBUILD: $(msbuildpath)
   #BL_PATH: $(genexus)
   #WORKING_DIR: $(workingDir)
-  #KB_PATH: $(workingDir)\$(kbalias)
+  KB_PATH: $(WORKING_DIR)\$(KB_ALIAS)
   
   #KB Building variables:
   #KB_ALIAS: $(kbalias)
@@ -47,7 +47,7 @@ trigger:
   - main
 
 pool:
-  name: $(EXEC_AGENT)
+  name: $(POOL)
 
 jobs:
   - job: CheckoutOrUpdate
@@ -74,7 +74,7 @@ jobs:
     dependsOn: CheckoutOrUpdate
     condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['forceRebuild'], 'true'))
     steps:
-      - script: rmdir $(KB_PATH)\NetModel /s /q
+      - script: rmdir $(KB_PATH)\$(TARGETPATH) /s /q
         condition: eq(variables['forceRebuild'], 'true')
         name: CleanBuildDir
 
@@ -85,14 +85,14 @@ jobs:
           $(MSBUILD) "$(BL_PATH)\deploy.msbuild" /t:CreateDeploy /p:KBPath=$(KB_PATH);KBEnvironment=$(KBENVIRONMENT);DeploymentUnit=$(DEPLOYMENT_UNIT) 
           /p:ProjectName=$(DEPLOY_NAME) /p:TargetId="AZURE" /p:ObjectNames="DeploymentUnitCategory:$(DEPLOYMENT_UNIT)"
           /p:DEPLOY_TARGETS="$(BL_PATH)\DeploymentTargets\Azure\azure.targets" 
-          /p:DeployFullPath="$(KB_PATH)\NetModel\Deploy\AZURE\$(DEPLOYMENT_UNIT)\$(DEPLOY_NAME)" 
-          /p:WebSourcePath="$(KB_PATH)\NetModel\web" /p:GX_PROGRAM_DIR="$(BL_PATH)" 
+          /p:DeployFullPath="$(KB_PATH)\$(TARGETPATH)\Deploy\AZURE\$(DEPLOYMENT_UNIT)\$(DEPLOY_NAME)" 
+          /p:WebSourcePath="$(KB_PATH)\$(TARGETPATH)\web" /p:GX_PROGRAM_DIR="$(BL_PATH)" 
           /p:AZURE_PUBLISH_SETTINGS="$(PUBLISH_SETTINGS)" 
           /p:APPLICATION_KEY="$(APPLICATION_KEY)"
         name: CreateDeploy
 
       - script: >  
-          $(MSBUILD) /ToolsVersion:4.0 "$(KB_PATH)\NetModel\web\$(DEPLOY_NAME).gxdproj" /t:CreatePackage 
+          $(MSBUILD) /ToolsVersion:4.0 "$(KB_PATH)\$(TARGETPATH)\web\$(DEPLOY_NAME).gxdproj" /t:CreatePackage 
           /p:GX_PROGRAM_DIR="$(BL_PATH)" /p:AZURE_PUBLISH_SETTINGS="$(PUBLISH_SETTINGS)" 
           /p:APPLICATION_KEY="$(APPLICATION_KEY)"
         name: CreatePackage
@@ -101,13 +101,13 @@ jobs:
           $(MSBUILD) "$(BL_PATH)\DeploymentTargets\Azure\deploy.msbuild" /t:Deploy 
           /p:AZURE_PUBLISH_SETTINGS="$(PUBLISH_SETTINGS)" 
           /p:APPLICATION_KEY="$(APPLICATION_KEY)" /p:APPLICATION_NAME="$(DEPLOY_NAME)" 
-          /p:DEPLOY_PATH="$(KB_PATH)\NetModel\Deploy\AZURE\$(DEPLOYMENT_UNIT)\$(DEPLOY_NAME)" 
-          /p:GX_PROGRAM_DIR="$(BL_PATH)" /p:DeploySource="$(KB_PATH)\NetModel\Deploy\AZURE\$(DEPLOY_NAME).zip" 
+          /p:DEPLOY_PATH="$(KB_PATH)\$(TARGETPATH)\Deploy\AZURE\$(DEPLOYMENT_UNIT)\$(DEPLOY_NAME)" 
+          /p:GX_PROGRAM_DIR="$(BL_PATH)" /p:DeploySource="$(KB_PATH)\$(TARGETPATH)\Deploy\AZURE\$(DEPLOY_NAME).zip" 
           /p:CreateCloudPackage="false" /p:KBPath=$(KB_PATH) /p:KBEnvironment="$(KBENVIRONMENT)" /p:KBVersion="ActualizacionAmbiente2" 
           /p:DeploymentUnit="$(DEPLOYMENT_UNIT)" /p:ProjectName="$(DEPLOY_NAME)" /p:TargetId="AZURE" /p:ObjectNames="DeploymentUnitCategory:$(DEPLOYMENT_UNIT)"
           /p:DEPLOY_TARGETS="$(BL_PATH)\DeploymentTargets\Azure\azure.targets" 
-          /p:DeployFullPath="$(KB_PATH)\NetModel\Deploy\AZURE\$(DEPLOYMENT_UNIT)\$(DEPLOY_NAME)" 
-          /p:WebSourcePath="$(KB_PATH)\NetModel\web" /p:GENERATOR="$(KBGENERATOR)"
+          /p:DeployFullPath="$(KB_PATH)\$(TARGETPATH)\Deploy\AZURE\$(DEPLOYMENT_UNIT)\$(DEPLOY_NAME)" 
+          /p:WebSourcePath="$(KB_PATH)\$(TARGETPATH)\web" /p:GENERATOR="$(KBGENERATOR)"
         name: DeploytoWebApp
   
   - job: CloneOrPull
@@ -129,7 +129,7 @@ jobs:
     condition: succeeded()
     steps:
       - script: >
-          xcopy /E /I /Y "$(KB_PATH)\NetModel" "$(WORKING_DIR)\$(GIT_BRANCH)"
+          xcopy /E /I /Y "$(KB_PATH)\$(TARGETPATH)" "$(WORKING_DIR)\$(GIT_BRANCH)"
 
           cd $(GIT_BRANCH)
 
