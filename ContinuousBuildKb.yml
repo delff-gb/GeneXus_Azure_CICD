@@ -72,17 +72,17 @@ jobs:
 
   - job: BuildAndDeploy
     dependsOn: CheckoutOrUpdate
-    condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['forceRebuild'], 'true'))
+    condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: rmdir $(KB_PATH)\$(TARGETPATH) /s /q
-        condition: eq(variables['forceRebuild'], 'true')
+        condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
 
-      - script: $(MSBUILD) "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:WorkingDirectory=$(KB_PATH) /p:ForceRebuild=$(forceRebuild)
+      - script: $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:WorkingDirectory=$(KB_PATH) /p:ForceRebuild=$(FORCE_REBUILD)
         name: BuildKB
 
       - script: >
-          $(MSBUILD) "$(BL_PATH)\deploy.msbuild" /t:CreateDeploy /p:KBPath=$(KB_PATH);KBEnvironment=$(KBENVIRONMENT);DeploymentUnit=$(DEPLOYMENT_UNIT) 
+          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\deploy.msbuild" /t:CreateDeploy /p:KBPath=$(KB_PATH);KBEnvironment=$(KBENVIRONMENT);DeploymentUnit=$(DEPLOYMENT_UNIT) 
           /p:ProjectName=$(DEPLOY_NAME) /p:TargetId="AZURE" /p:ObjectNames="DeploymentUnitCategory:$(DEPLOYMENT_UNIT)"
           /p:DEPLOY_TARGETS="$(BL_PATH)\DeploymentTargets\Azure\azure.targets" 
           /p:DeployFullPath="$(KB_PATH)\$(TARGETPATH)\Deploy\AZURE\$(DEPLOYMENT_UNIT)\$(DEPLOY_NAME)" 
