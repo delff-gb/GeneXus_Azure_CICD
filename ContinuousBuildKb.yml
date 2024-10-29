@@ -77,7 +77,8 @@ jobs:
       - script: >
           $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:EnvironmentName=$(ENVIRONMENTNAME) 
           set /p:TARGETPATH=$(TargetPath)
-          echo (MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:EnvironmentName=$(ENVIRONMENTNAME) 
+          
+          echo here $(MSBUILD) "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:EnvironmentName=$(ENVIRONMENTNAME) 
           set /p:TARGETPATH=$(TargetPath)
           
           rmdir $(KB_PATH)\$(TARGETPATH) /s /q
