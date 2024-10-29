@@ -64,7 +64,7 @@ jobs:
 
   - job: SetActiveEnvironment
     dependsOn: CheckoutOrUpdate
-    condition: gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')
+    condition:  or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
           $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:EnvironmentName=$(ENVIRONMENTNAME) 
