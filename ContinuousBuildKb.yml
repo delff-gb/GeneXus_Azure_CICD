@@ -62,20 +62,19 @@ jobs:
           echo ##vso[task.setvariable variable=updateCount;isOutput=true]%updateCount%
         name: CreateOrUpdateKB
 
-#  - job: SetActiveEnvironment
-#    dependsOn: CheckoutOrUpdate
-#    condition:  or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
-#    steps:
-#      - script: >
-          
-#        name: SetActiveEnvironment
+  - job: SetActiveEnvironment
+    dependsOn: CheckoutOrUpdate
+    condition:  always()
+    steps:
+      - script: >
+          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:TARGETPATH=$(TargetPath)           
+        name: SetActiveEnvironment
 
   - job: BuildAndDeploy
     dependsOn: CheckoutOrUpdate
     condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
-          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TargetPath) 
           rmdir $(KB_PATH)\$(TARGETPATH) /s /q
         condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
