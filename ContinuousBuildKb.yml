@@ -67,7 +67,7 @@ jobs:
     condition:  always()
     steps:
       - script: >
-          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:TARGETPATH=$(TargetPath)           
+          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TargetPath)           
         name: SetActiveEnvironment
 
   - job: BuildAndDeploy
