@@ -75,7 +75,7 @@ jobs:
     condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
-          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:EnvironmentName=$(ENVIRONMENTNAME) 
+          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:EnvironmentName=$(ENVIRONMENTNAME) /p:Name=$(TargetPath) 
           
           set /p:TARGETPATH=$(TargetPath)
           
