@@ -76,12 +76,7 @@ jobs:
     steps:
       - script: >
           $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TargetPath) 
-          
-          #set /p:TARGETPATH=$(TargetPath)
-          
-          echo here $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TargetPath) 
-          #set /p:TARGETPATH=$(TargetPath)
-          
+          set TARGETPATH:$(TargetPath)
           rmdir $(KB_PATH)\$(TARGETPATH) /s /q
         condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
