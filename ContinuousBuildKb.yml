@@ -75,17 +75,17 @@ jobs:
     condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
-          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TargetPath) 
+          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TargetPath) 
           
-          #  set /p:TARGETPATH=$(TargetPath)
+          #set /p:TARGETPATH=$(TargetPath)
           
-          echo here $(MSBUILD) "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:EnvironmentName=$(ENVIRONMENTNAME) 
-          set /p:TARGETPATH=$(TargetPath)
+          echo here $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TargetPath) 
+          #set /p:TARGETPATH=$(TargetPath)
           
           rmdir $(KB_PATH)\$(TARGETPATH) /s /q
         condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
-      - script: $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:WorkingDirectory=$(KB_PATH) /p:AppDB=$(DATABASENAME) /p:SQLInstance=$(DB_SERVERNAME) /p:IncludeFrontendObjects=false /p:IncludeSDSamples=false /p:UpdateMode="never" /p:ForceRebuild=$(FORCE_REBUILD)
+      - script: $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:AppDB=$(DATABASENAME) /p:SQLInstance=$(DB_SERVERNAME) /p:IncludeFrontendObjects=false /p:IncludeSDSamples=false /p:UpdateMode="never" /p:ForceRebuild=$(FORCE_REBUILD)
         name: BuildKB
 
       - script: >
