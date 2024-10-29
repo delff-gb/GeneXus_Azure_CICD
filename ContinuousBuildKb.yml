@@ -72,7 +72,7 @@ jobs:
         name: SetActiveEnvironment
 
   - job: BuildAndDeploy
-    dependsOn: CheckoutOrUpdate
+    dependsOn: SetActiveEnvironment
     condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
