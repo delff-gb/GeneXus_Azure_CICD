@@ -67,9 +67,13 @@ jobs:
     condition:  always()
     steps:
       - script: >
-          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValues123=$(TARGETPATH)
+          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TARGETPATH)
+              echo ##vso[task.setvariable variable=PropertyValue;isOutput=true]$(TARGETPATH)
+              echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)
+              echo ##vso[task.setvariable variable=PropertyValue;isOutput=true]$(PropertyValue)
+              echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(PropertyValue)
             echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue
-            echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)
+          
             echo "OLA KE ASE"      $(TargetPath) $TARGETPATH $env:TARGETPATH PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue
         name: SetActiveEnvironment
 
