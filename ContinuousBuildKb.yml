@@ -81,12 +81,13 @@ jobs:
     condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
-          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=TARGETPATH
             rmdir $(KB_PATH)\$(TARGETPATH) /s /q
-            echo $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=TARGETPATH
-            echo ##vso[task.setvariable variable=psJobVariable;isOutput=true]some_value
-            echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)
-            echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   psJobVariable $(psJobVariable) $psJobVariable  $env:psJobVariable %TARGETPATH% %psJobVariable% %TargetPath% $(BuildKB.TARGETPATH) $BuildKB.TARGETPATH %BuildKB.TARGETPATH%
+#          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=TARGETPATH
+           
+#            echo $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=TARGETPATH
+#            echo ##vso[task.setvariable variable=psJobVariable;isOutput=true]some_value
+#            echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)
+#            echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   psJobVariable $(psJobVariable) $psJobVariable  $env:psJobVariable %TARGETPATH% %psJobVariable% %TargetPath% $(BuildKB.TARGETPATH) $BuildKB.TARGETPATH %BuildKB.TARGETPATH%
           
         condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
