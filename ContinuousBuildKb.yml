@@ -91,8 +91,8 @@ jobs:
           
         condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
-#      - script: $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:AppDB=$(DATABASENAME) /p:SQLInstance=$(DB_SERVERNAME) /p:IncludeFrontendObjects=false /p:IncludeSDSamples=false /p:UpdateMode="never" /p:ForceRebuild=$(FORCE_REBUILD)
-#        name: BuildKB
+      - script: $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:AppDB=$(DATABASENAME) /p:SQLInstance=$(DB_SERVERNAME) /p:IncludeFrontendObjects=false /p:IncludeSDSamples=false /p:UpdateMode="never" /p:ForceRebuild=$(FORCE_REBUILD)
+        name: BuildKB
  
       - script: >
           $(MSBUILD) /verbosity:detailed "$(BL_PATH)\deploy.msbuild" /t:CreateDeploy /p:KBPath=$(KB_PATH);KBEnvironment=$(KBENVIRONMENT);DeploymentUnit=$(DEPLOYMENT_UNIT) 
