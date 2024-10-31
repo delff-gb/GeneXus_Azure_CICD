@@ -18,7 +18,7 @@ variables:
   #GXSERVER_PASS: $(password)
   #KBENVIRONMENT: $(environment)
   #KBGENERATOR: $(generator)
-  #FORCE_REBUILD: $(forceRebuild)
+  FORCE_REBUILD: $(forceRebuild)
   
   #Deploy variables:
   #PUBLISH_SETTINGS: $(azurePublish)
@@ -62,36 +62,16 @@ jobs:
           echo ##vso[task.setvariable variable=updateCount;isOutput=true]%updateCount%
         name: CreateOrUpdateKB
 
-#  - job: SetActiveEnvironment
-#    dependsOn: CheckoutOrUpdate
-#    condition:  always()
-#    steps:
-#      - script: >
-#              
-#              echo ##vso[task.setvariable variable=PropertyValue;isOutput=true]$(TARGETPATH)
-#              echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)
-#              echo ##vso[task.setvariable variable=PropertyValue;isOutput=true]$(PropertyValue)
-#              echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(PropertyValue)
-#              echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue %TARGETPATH% %PropertyValue% %TargetPath%
-#              echo "OLA KE ASE"      $(TargetPath) $TARGETPATH $env:TARGETPATH PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue  %TARGETPATH% %PropertyValue% %TargetPath%
-#        name: SetActiveEnvironment
 
   - job: BuildAndDeploy
     dependsOn: CheckoutOrUpdate
-    condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
+    condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['forceRebuild'], 'true'))
     steps:
       - script: >
-            rmdir $(KB_PATH)\$(TARGETPATH) /s /q
-#          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=TARGETPATH
-           
-#            echo $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=TARGETPATH
-#            echo ##vso[task.setvariable variable=psJobVariable;isOutput=true]some_value
-#            echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)
-#            echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   psJobVariable $(psJobVariable) $psJobVariable  $env:psJobVariable %TARGETPATH% %psJobVariable% %TargetPath% $(BuildKB.TARGETPATH) $BuildKB.TARGETPATH %BuildKB.TARGETPATH%
-          
-        condition: eq(variables['FORCE_REBUILD'], 'true')
+            rmdir $(KB_PATH)\$(TARGETPATH) /s /q      
+        condition: eq(variables['forceRebuild'], 'true')
         name: CleanBuildDir
-      - script: $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:AppDB=$(DATABASENAME) /p:SQLInstance=$(DB_SERVERNAME) /p:IncludeFrontendObjects=false /p:IncludeSDSamples=false /p:UpdateMode="never" /p:ForceRebuild=$(FORCE_REBUILD)
+      - script: $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:AppDB=$(DATABASENAME) /p:SQLInstance=$(DB_SERVERNAME) /p:IncludeFrontendObjects=false /p:IncludeSDSamples=false /p:UpdateMode="never" /p:forceRebuild=$(FORCE_REBUILD)
         name: BuildKB
  
       - script: >
