@@ -60,30 +60,32 @@ jobs:
           set /p updateCount=<"$(KB_PATH)\updateCount.txt"
 
           echo ##vso[task.setvariable variable=updateCount;isOutput=true]%updateCount%
-          
+          echo ##vso[task.setvariable variable=skipsubsequent;isOutput=true]false
         name: CreateOrUpdateKB
 
-  - job: SetActiveEnvironment
-    dependsOn: CheckoutOrUpdate
-    condition:  always()
-    steps:
-      - script: >
-          %TARGETPATH%= $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TARGETPATH)
-              echo ##vso[task.setvariable variable=PropertyValue;isOutput=true]$(TARGETPATH)
-              echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)
-              echo ##vso[task.setvariable variable=PropertyValue;isOutput=true]$(PropertyValue)
-              echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(PropertyValue)
-            echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue %TARGETPATH% %PropertyValue% %TargetPath%
-          
-            echo "OLA KE ASE"      $(TargetPath) $TARGETPATH $env:TARGETPATH PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue  %TARGETPATH% %PropertyValue% %TargetPath%
-        name: SetActiveEnvironment
+#  - job: SetActiveEnvironment
+#    dependsOn: CheckoutOrUpdate
+#    condition:  always()
+#    steps:
+#      - script: >
+#              
+#              echo ##vso[task.setvariable variable=PropertyValue;isOutput=true]$(TARGETPATH)
+#              echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)
+#              echo ##vso[task.setvariable variable=PropertyValue;isOutput=true]$(PropertyValue)
+#              echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(PropertyValue)
+#              echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue %TARGETPATH% %PropertyValue% %TargetPath%
+#              echo "OLA KE ASE"      $(TargetPath) $TARGETPATH $env:TARGETPATH PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue  %TARGETPATH% %PropertyValue% %TargetPath%
+#        name: SetActiveEnvironment
 
   - job: BuildAndDeploy
-    dependsOn: SetActiveEnvironment
+    dependsOn: CheckoutOrUpdate
     condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
-          echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue %TARGETPATH% %PropertyValue% %TargetPath% $(SetActiveEnvironment.TARGETPATH) $SetActiveEnvironment.TARGETPATH %SetActiveEnvironment.TARGETPATH%
+          $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:SetActiveEnvironment /p:WorkingDirectory=$(KB_PATH) /p:EnvironmentName=$(ENVIRONMENTNAME) /p:PropertyValue=$(TARGETPATH)
+          echo ##vso[task.setvariable variable=psJobVariable;isOutput=true]some_value"
+          echo ##vso[task.setvariable variable=TARGETPATH;isOutput=true]$(TARGETPATH)"
+          echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue %TARGETPATH% %PropertyValue% %TargetPath% $(BuildKB.TARGETPATH) $BuildKB.TARGETPATH %BuildKB.TARGETPATH%
           rmdir $(KB_PATH)\$env:TARGETPATH /s /q
         condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
