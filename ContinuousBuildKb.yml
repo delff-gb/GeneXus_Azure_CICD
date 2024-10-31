@@ -60,6 +60,7 @@ jobs:
           set /p updateCount=<"$(KB_PATH)\updateCount.txt"
 
           echo ##vso[task.setvariable variable=updateCount;isOutput=true]%updateCount%
+          
         name: CreateOrUpdateKB
 
   - job: SetActiveEnvironment
@@ -82,7 +83,7 @@ jobs:
     condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
-          echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue %TARGETPATH% %PropertyValue% %TargetPath%
+          echo $(TARGETPATH) $TARGETPATH $env:TARGETPATH Here   PropertyValue $(PropertyValue) $PropertyValue  $env:PropertyValue %TARGETPATH% %PropertyValue% %TargetPath% $(SetActiveEnvironment.TARGETPATH) $SetActiveEnvironment.TARGETPATH %SetActiveEnvironment.TARGETPATH%
           rmdir $(KB_PATH)\$env:TARGETPATH /s /q
         condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
