@@ -18,7 +18,7 @@ variables:
   #GXSERVER_PASS: $(password)
   #KBENVIRONMENT: $(environment)
   #KBGENERATOR: $(generator)
-  FORCE_REBUILD: $(forceRebuild)
+  #FORCE_REBUILD: $(forceRebuild)
   
   #Deploy variables:
   #PUBLISH_SETTINGS: $(azurePublish)
@@ -65,11 +65,11 @@ jobs:
 
   - job: BuildAndDeploy
     dependsOn: CheckoutOrUpdate
-    condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['forceRebuild'], 'true'))
+    condition: or(and(succeeded(), gt(dependencies.CheckoutOrUpdate.outputs['CreateOrUpdateKB.updateCount'], '0')),eq(variables['FORCE_REBUILD'], 'true'))
     steps:
       - script: >
             rmdir $(KB_PATH)\$(TARGETPATH) /s /q      
-        condition: eq(variables['forceRebuild'], 'true')
+        condition: eq(variables['FORCE_REBUILD'], 'true')
         name: CleanBuildDir
       - script: $(MSBUILD) /verbosity:detailed "$(BL_PATH)\AzureCICD.Msbuild" -target:Build /p:WorkingDirectory=$(KB_PATH) /p:AppDB=$(DATABASENAME) /p:SQLInstance=$(DB_SERVERNAME) /p:IncludeFrontendObjects=false /p:IncludeSDSamples=false /p:UpdateMode="never" /p:forceRebuild=$(FORCE_REBUILD)
         name: BuildKB
